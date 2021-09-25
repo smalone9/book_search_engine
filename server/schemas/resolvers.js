@@ -34,7 +34,46 @@ const resolvers = {
       return Book.findOne({ _id });
     },
   },
-  // Mutation: {},
+  Mutation: {
+    addUser: async (parent, args) => {
+      const user = await User.create(args);
+      const token = signToken(user);
+      return { token, user };
+    },
+    login: async (parent, { email, password }) => {
+      const user = await User.findOne({ email });
+
+      if (!user) {
+        throw new AuthenticationError("Wrong email!");
+      }
+
+      const correctPw = await user.isCorrectPassword(password);
+
+      if (!correctPw) {
+        throw new AuthenticationError("Wrong password!");
+      }
+
+      const token = signToken(user, password);
+      return { token, user };
+    },
+    addBook: async (paren, args, context) => {
+      if (context.user) {
+        const book = await Book.create({
+          ...args,
+          username: context.user.username,
+        });
+
+        await User.findByIdAndUpdate(
+          { _id: context.user._id },
+          { $push: { books: book._id } },
+          { new: true }
+        );
+
+        return book;
+      }
+      throw new AuthenticationError("Login Required!");
+    },
+  },
 };
 
 module.exports = resolvers;
