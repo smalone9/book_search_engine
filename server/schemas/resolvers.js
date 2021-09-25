@@ -6,32 +6,13 @@ const resolvers = {
   Query: {
     me: async (parent, args, context) => {
       if (context.user) {
-        const userData = await User.findOne({ _id: context.user._id })
-          .select("-__v -password")
-          .populate("savedBooks");
+        const userData = await User.findOne({ _id: context.user._id }).select(
+          "-__v -password"
+        );
 
         return userData;
       }
       throw new AuthenticationError("Login Required!");
-    },
-    // get all users
-    users: async () => {
-      return User.find()
-        .select(-__v - password)
-        .populate("books");
-    },
-    // get a user by Username
-    user: async (parent, { username }) => {
-      return User.findOne({ username })
-        .select("-__v -password")
-        .populate("books");
-    },
-    books: async (parent, { username }) => {
-      const params = username ? { username } : {};
-      return Book.find(params).sort({ createdAt: -1 });
-    },
-    book: async (parent, { __id }) => {
-      return Book.findOne({ _id });
     },
   },
   Mutation: {
@@ -56,22 +37,26 @@ const resolvers = {
       const token = signToken(user, password);
       return { token, user };
     },
-    addBook: async (paren, args, context) => {
+    saveBook: async (parent, { book }, context) => {
       if (context.user) {
-        const book = await Book.create({
-          ...args,
-          username: context.user.username,
-        });
-
-        await User.findByIdAndUpdate(
+        const updatedUser = await User.findOneAndUpdate(
+          { _id: context.user._id },
+          { $addToSet: { savedBooks: book } },
+          { new: true }
+        );
+        return updatedUser;
+      }
+      throw new AuthenticationError("Login Required!");
+    },
+    removeBook: async (parent, { bookId }, context) => {
+      if (context.user) {
+        const updatedUser = await User.findOneAndUpdate(
           { _id: context.user._id },
           { $push: { books: book._id } },
           { new: true }
         );
-
-        return book;
+        return updatedUser;
       }
-      throw new AuthenticationError("Login Required!");
     },
   },
 };
