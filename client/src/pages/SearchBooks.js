@@ -10,11 +10,11 @@ import {
 } from "react-bootstrap";
 
 import Auth from "../utils/auth";
-import { saveBook, searchGoogleBooks } from "../utils/API";
+import { searchGoogleBooks } from "../utils/API";
 import { saveBookIds, getSavedBookIds } from "../utils/localStorage";
 import { useMutation } from "@apollo/client";
 import { SAVE_BOOK } from "../utils/mutations";
-import { GET_ME } from "../utils/queries";
+// import { GET_ME } from "../utils/queries";
 
 const SearchBooks = () => {
   // create state for holding returned google api data
@@ -55,7 +55,7 @@ const SearchBooks = () => {
         title: book.volumeInfo.title,
         description: book.volumeInfo.description,
         image: book.volumeInfo.imageLinks?.thumbnail || "",
-        link: book.volumeInfo.infoLink,
+        // link: book.volumeInfo.infoLink,
       }));
 
       setSearchedBooks(bookData);
@@ -80,13 +80,13 @@ const SearchBooks = () => {
     try {
       await saveBook({
         variables: { book: bookToSave },
-        update: (cache) => {
-          const { me } = cache.readQuery({ query: GET_ME });
-          cache.writeQuery({
-            query: GET_ME,
-            data: { me: { ...me, savedBooks: [...me.savedBooks, bookToSave] } },
-          });
-        },
+        // update: (cache) => {
+        //   const { me } = cache.readQuery({ query: GET_ME });
+        //   cache.writeQuery({
+        //     query: GET_ME,
+        //     data: { me: { ...me, savedBooks: [...me.savedBooks, bookToSave] } },
+        //   });
+        // },
       });
       // const response = await saveBook(bookToSave, token);
 

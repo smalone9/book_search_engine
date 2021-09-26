@@ -16,16 +16,19 @@ import { removeBookId } from "../utils/localStorage";
 const SavedBooks = () => {
   const { loading, data } = useQuery(GET_ME);
   const [deleteBook] = useMutation(REMOVE_BOOK);
-  const userData = data?.me || {};
 
-  if (!userData?.username) {
-    return (
-      <h4>
-        Login required!!!! Log In if you've already set up an account or Sign Up
-        if this is your first visit!
-      </h4>
-    );
-  }
+  if (loading) return "LOADING...";
+  if (error) return `Error! ${error.message}`;
+  const userData = data?.me;
+
+  // if (!userData?.username) {
+  //   return (
+  //     <h4>
+  //       Login required!!!! Log In if you've already set up an account or Sign Up
+  //       if this is your first visit!
+  //     </h4>
+  //   );
+  // }
   // useEffect(() => {
   //   const getUserData = async () => {
   //     try {
@@ -60,22 +63,24 @@ const SavedBooks = () => {
     }
 
     try {
-      await deleteBook({
+      const { data } = await removeBook({
         variables: { bookId: bookId },
-        update: (cache) => {
-          const data = cache.readQuery({ query: GET_ME });
-          const userDataCache = data.me;
-          const savedBooksCache = userDataCache.savedBooks;
-          const updatedBookCache = savedBooksCache.filter(
-            (book) => book.bookId !== bookId
-          );
-          data.me.savedBooks = updatedBookCache;
-          cache.writeQuery({
-            query: GET_ME,
-            data: { data: { ...data.me.savedBooks } },
-          });
-        },
       });
+      console.log(data);
+      // await deleteBook({
+      //   variables: { bookId: bookId },
+      //   update: (cache) => {
+      //     const data = cache.readQuery({ query: GET_ME });
+      //     const userDataCache = data.me;
+      //     const savedBooksCache = userDataCache.savedBooks;
+      //     const updatedBookCache = savedBooksCache.filter(
+      //       (book) => book.bookId !== bookId
+      //     );
+      //     data.me.savedBooks = updatedBookCache;
+      //     cache.writeQuery({
+      //       query: GET_ME,
+      //       data: { data: { ...data.me.savedBooks } },
+      //     });
       // const response = await deleteBook(bookId, token);
 
       // if (!response.ok) {
@@ -125,13 +130,7 @@ const SavedBooks = () => {
                 <Card.Body>
                   <Card.Title>{book.title}</Card.Title>
                   <p className="small">Authors: {book.authors}</p>
-                  {book.link ? (
-                    <Card.Text>
-                      <a href={book.link} target="_blank">
-                        More information on Google Books!
-                      </a>
-                    </Card.Text>
-                  ) : null}
+
                   <Card.Text>{book.description}</Card.Text>
                   <Button
                     className="btn-block btn-danger"
