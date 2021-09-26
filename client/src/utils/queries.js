@@ -1,6 +1,6 @@
 import gql from "graphql-tag";
 
-export const GET_M = gql`
+export const GET_ME = gql`
   {
     me {
       _id
