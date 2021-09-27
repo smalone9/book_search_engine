@@ -12,6 +12,8 @@ import { setContext } from "@apollo/client/link/context";
 import SearchBooks from "./pages/SearchBooks";
 import SavedBooks from "./pages/SavedBooks";
 import Navbar from "./components/Navbar";
+import LoginForm from "./components/LoginForm";
+import SignupForm from "./components/SignupForm";
 
 const httpLink = createHttpLink({
   uri: "/graphql",
@@ -22,7 +24,7 @@ const authLink = setContext((_, { headers }) => {
   return {
     headers: {
       ...headers,
-      authoriziation: token ? `Bearer ${token}` : "",
+      authorization: token ? `Bearer ${token}` : "",
     },
   };
 });
@@ -42,6 +44,8 @@ function App() {
           <Switch>
             <Route exact path="/" component={SearchBooks} />
             <Route exact path="/saved" component={SavedBooks} />
+            <Route exact path="/signup" component={SignupForm} />
+            <Route exact path="/login" component={LoginForm} />
             <Route render={() => <h1 className="display-2">Wrong page!</h1>} />
           </Switch>
         </>
